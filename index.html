@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List - Muhammad Qais Raza</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; font-family: Arial, sans-serif; background: linear-gradient(135deg, #0a7d3b, #0b3d5c); display: flex; flex-direction: column; align-items: center; padding: 30px 15px; color: white; }
+    h1 { margin: 10px 0 5px; font-size: 34px; }
+    .sub { opacity: 0.8; margin-bottom: 20px; }
+    .card { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+    .row { display: flex; gap: 10px; }
+    #task { flex: 1; padding: 14px; border: none; border-radius: 12px; font-size: 16px; outline: none; }
+    #addBtn { padding: 14px 18px; border: none; border-radius: 12px; background: #f39c12; color: white; font-size: 20px; font-weight: bold; }
+    ul { list-style: none; padding: 0; margin: 20px 0 0; }
+    li { display: flex; align-items: center; gap: 10px; background: white; color: #222; padding: 14px; border-radius: 12px; margin-bottom: 10px; }
+    li span { flex: 1; text-align: left; word-break: break-word; }
+    li.done span { text-decoration: line-through; color: #999; }
+    .check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #0a7d3b; background: white; color: white; font-size: 14px; padding: 0; }
+    li.done .check { background: #0a7d3b; }
+    .del { border: none; background: #d9534f; color: white; border-radius: 8px; padding: 8px 10px; }
+    .count { text-align: center; margin-top: 10px; opacity: 0.9; }
+    .footer { margin-top: 25px; text-align: center; opacity: 0.85; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <h1>✅ My To-Do List</h1>
+  <div class="sub">Stay organized, one task at a time</div>
+
+  <div class="card">
+    <div class="row">
+      <input id="task" placeholder="Write a new task...">
+      <button id="addBtn" onclick="addTask()">+</button>
+    </div>
+    <ul id="list"></ul>
+    <div class="count" id="count"></div>
+  </div>
+
+  <div class="footer">Made by <b>Muhammad Qais Raza</b><br>Computer Science Student, University of Lahore</div>
+
+  <script>
+    let tasks = [];
+    try { tasks = JSON.parse(localStorage.getItem('tasks')) || []; } catch (e) { tasks = []; }
+
+    const input = document.getElementById('task');
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') addTask(); });
+
+    function save() {
+      try { localStorage.setItem('tasks', JSON.stringify(tasks)); } catch (e) {}
+    }
+
+    function addTask() {
+      const text = input.value.trim();
+      if (!text) return;
+      tasks.push({ text: text, done: false });
+      input.value = '';
+      save();
+      render();
+    }
+
+    function toggle(i) { tasks[i].done = !tasks[i].done; save(); render(); }
+    function removeTask(i) { tasks.splice(i, 1); save(); render(); }
+
+    function render() {
+      const list = document.getElementById('list');
+      list.innerHTML = '';
+      tasks.forEach(function (t, i) {
+        const li = document.createElement('li');
+        if (t.done) li.className = 'done';
+
+        const c = document.createElement('button');
+        c.className = 'check';
+        c.textContent = t.done ? '✓' : '';
+        c.onclick = function () { toggle(i); };
+
+        const s = document.createElement('span');
+        s.textContent = t.text;
+
+        const d = document.createElement('button');
+        d.className = 'del';
+        d.textContent = '🗑';
+        d.onclick = function () { removeTask(i); };
+
+        li.appendChild(c);
+        li.appendChild(s);
+        li.appendChild(d);
+        list.appendChild(li);
+      });
+      const left = tasks.filter(function (t) { return !t.done; }).length;
+      document.getElementById('count').textContent = tasks.length ? left + ' task(s) left' : 'No tasks yet. Add one! ✨';
+    }
+
+    render();
+  </script>
+</body>
+</html>
